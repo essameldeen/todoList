@@ -2,9 +2,9 @@ package com.demo.todolist.data.app
 
 import android.content.Context
 import androidx.room.Room
-import com.demo.todolist.data.Repo.TasksRepoImpl
 import com.demo.todolist.data.db.TaskDao
-import com.demo.todolist.data.db.TaskDataBase
+import com.demo.todolist.data.Repo.TasksRepoImpl
+import com.demo.todolist.data.db.TaskDatabase
 import com.demo.todolist.domain.Repo.TasksRepo
 import com.demo.todolist.domain.useCase.GetAllTasks
 import dagger.Module
@@ -25,13 +25,13 @@ object AppModule {
     fun provideDataBase(@ApplicationContext context: Context) =
         Room.databaseBuilder(
             context,
-            TaskDataBase::class.java,
+            TaskDatabase::class.java,
             "tasks.db"
         ).build()
 
     @Provides
     @Singleton
-    fun provideTaskDao(db: TaskDataBase) = db.getDao()
+    fun provideTaskDao(db: TaskDatabase) = db.taskDao()
 
     @ApplicationScope
     @Provides

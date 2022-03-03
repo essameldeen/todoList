@@ -4,8 +4,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.demo.todolist.presentation.loading.LoadingDialog
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 abstract class BaseFragment : Fragment()
 {
     private lateinit var loading: LoadingDialog

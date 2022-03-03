@@ -16,20 +16,21 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
 
     private val mainViewModel: MainViewModel by viewModels()
     private lateinit var _binding: FragmentMainBinding
+    private lateinit var tasksAdapter: TasksAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentMainBinding.inflate(inflater,container,false)
+        _binding = FragmentMainBinding.inflate(inflater, container, false)
 
         initView()
         return _binding.root
     }
 
     private fun initView() {
-        val tasksAdapter = TasksAdapter(this@MainFragment)
+        tasksAdapter = TasksAdapter(this@MainFragment)
         _binding.rvTasks.apply {
             adapter = tasksAdapter
             layoutManager = LinearLayoutManager(requireContext())
@@ -39,6 +40,15 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initObservers()
+    }
+
+    private fun initObservers() {
+        mainViewModel.tasks.observe(viewLifecycleOwner) {
+            if (it.isNotEmpty()) {
+                tasksAdapter.submitList(it)
+            }
+        }
     }
 
     override fun onItemClick(task: Task) {

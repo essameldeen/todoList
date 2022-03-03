@@ -35,7 +35,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
-        freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
     }
 }
 
@@ -64,10 +63,12 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
 
-    // Room
-    implementation "androidx.room:room-runtime:$roomVersion"
-    kapt "androidx.room:room-compiler:$roomVersion"
-    implementation "androidx.room:room-ktx:$roomVersion"
+    // room
+    def roomVersion = "2.4.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 
     // Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
@@ -76,8 +77,7 @@ dependencies {
     // Dagger Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hiltAndroidXVersion"
-    kapt "androidx.hilt:hilt-compiler:$hiltAndroidXVersion"
+
 
     // DataStore
     implementation "androidx.datastore:datastore-preferences:$dataStoreVersion"
