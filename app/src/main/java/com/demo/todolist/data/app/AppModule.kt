@@ -2,7 +2,11 @@ package com.demo.todolist.data.app
 
 import android.content.Context
 import androidx.room.Room
-import com.demo.todolist.data.db.DataBase
+import com.demo.todolist.data.Repo.TasksRepoImpl
+import com.demo.todolist.data.db.TaskDao
+import com.demo.todolist.data.db.TaskDataBase
+import com.demo.todolist.domain.Repo.TasksRepo
+import com.demo.todolist.domain.useCase.GetAllTasks
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,21 +22,36 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideDataBase(@ApplicationContext context: Context, callback: DataBase.CallBack) =
+    fun provideDataBase(@ApplicationContext context: Context) =
         Room.databaseBuilder(
             context,
-            DataBase::class.java,
+            TaskDataBase::class.java,
             "tasks.db"
-        ).addCallback(callback).build()
+        ).build()
 
     @Provides
     @Singleton
-    fun provideTaskDao(db: DataBase) = db.getDao()
+    fun provideTaskDao(db: TaskDataBase) = db.getDao()
 
     @ApplicationScope
     @Provides
     @Singleton
     fun provideApplicationScope() = CoroutineScope(SupervisorJob())
+
+
+    @Singleton
+    @Provides
+    fun provideRunRepo(
+        dao: TaskDao,
+    ): TasksRepo {
+        return TasksRepoImpl(
+            dao = dao
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideGetAllUseCase(repo:TasksRepo)= GetAllTasks(repo)
 }
 
 @Retention(AnnotationRetention.RUNTIME)
