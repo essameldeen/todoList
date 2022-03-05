@@ -22,12 +22,12 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideDataBase(@ApplicationContext context: Context) =
+    fun provideDataBase(@ApplicationContext context: Context,calLBack :TaskDatabase.Callback) =
         Room.databaseBuilder(
             context,
             TaskDatabase::class.java,
             "tasks.db"
-        ).build()
+        ).addCallback(calLBack).build()
 
     @Provides
     @Singleton

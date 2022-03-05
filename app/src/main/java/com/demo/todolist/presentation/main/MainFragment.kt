@@ -5,11 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.demo.todolist.data.model.Task
 import com.demo.todolist.databinding.FragmentMainBinding
 import com.demo.todolist.presentation.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
@@ -24,7 +26,6 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
-
         initView()
         return _binding.root
     }
@@ -44,9 +45,11 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
     }
 
     private fun initObservers() {
-        mainViewModel.tasks.observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                tasksAdapter.submitList(it)
+        lifecycleScope.launchWhenResumed {
+            mainViewModel.tasks.collect {
+                if (it.isNotEmpty()) {
+                    tasksAdapter.submitList(it)
+                }
             }
         }
     }
