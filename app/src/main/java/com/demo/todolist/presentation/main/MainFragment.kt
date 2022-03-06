@@ -61,7 +61,7 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem.actionView as SearchView
 
-        val pendingQuery = mainViewModel.searchQuery.value
+        val pendingQuery = mainViewModel.getSearchValue()
         if (pendingQuery != null && pendingQuery.isNotEmpty()) {
             searchItem.expandActionView()
             searchView.setQuery(pendingQuery, false)
@@ -73,7 +73,7 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                mainViewModel.searchQuery.value = newText
+                mainViewModel.setUpSearchValue(newText)
                 return false
             }
         })
@@ -83,17 +83,17 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_sort_by_name -> {
-                mainViewModel.sortedOrder.value = SortedState.BY_NAME
+
+                mainViewModel.setUpSortedOrder(SortedState.BY_NAME)
                 true
             }
             R.id.action_sort_by_date_created -> {
-
-                mainViewModel.sortedOrder.value = SortedState.BY_DATE
+                mainViewModel.setUpSortedOrder(SortedState.BY_DATE)
                 true
             }
             R.id.action_hide_completed_tasks -> {
                 item.isChecked = !item.isChecked
-                mainViewModel.hideCompleted.value = item.isChecked
+                mainViewModel.setUpHideCompleted(item.isChecked)
                 true
             }
             R.id.action_delete_all_completed_tasks -> {
