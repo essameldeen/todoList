@@ -13,6 +13,7 @@ import com.demo.todolist.presentation.base.BaseFragment
 import com.demo.todolist.presentation.utils.SortedState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -67,6 +68,15 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
             searchView.setQuery(pendingQuery, false)
         }
 
+        initListener()
+
+        setupDataInMenu(menu)
+
+
+
+
+    }
+    private fun initListener() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 return false
@@ -78,6 +88,14 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
             }
         })
     }
+    private fun setupDataInMenu(menu: Menu) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            menu.findItem(R.id.action_hide_completed_tasks).isChecked =
+                mainViewModel.preferenceFlow.first().hideCompleted
+        }
+    }
+
+
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

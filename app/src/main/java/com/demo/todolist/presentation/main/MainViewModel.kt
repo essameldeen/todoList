@@ -2,6 +2,7 @@ package com.demo.todolist.presentation.main
 
 
 import androidx.lifecycle.*
+import com.demo.todolist.data.db.PreferenceManager
 import com.demo.todolist.data.model.Task
 import com.demo.todolist.domain.useCase.GetAllTasks
 import com.demo.todolist.presentation.utils.SortedState
@@ -12,13 +13,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val useCase: GetAllTasks
+    private val useCase: GetAllTasks,
+    private val preferenceManager: PreferenceManager
 ) : ViewModel() {
 
     private val searchQuery = MutableStateFlow("")
-    private val sortedOrder = MutableStateFlow(SortedState.BY_DATE)
-    private val hideCompleted = MutableStateFlow(false)
 
+     val preferenceFlow = preferenceManager.preferenceFlow
 
     fun setUpSearchValue(searchValue: String) {
         searchQuery.value = searchValue
@@ -26,26 +27,24 @@ class MainViewModel @Inject constructor(
 
     fun getSearchValue() = searchQuery.value
 
-    fun setUpSortedOrder(sortedState: SortedState) {
-        sortedOrder.value = sortedState
+    fun setUpSortedOrder(sortedState: SortedState) = viewModelScope.launch {
+        preferenceManager.updateSortState(sortedState)
     }
 
-    fun setUpHideCompleted(hideValue: Boolean) {
-        hideCompleted.value = hideValue
+    fun setUpHideCompleted(hideValue: Boolean) = viewModelScope.launch {
+        preferenceManager.updateHideCompleted(hideValue)
     }
 
     private val taskFlow = combine(
         searchQuery,
-        sortedOrder,
-        hideCompleted
-    ) { query, sortedValue, hideValue ->
-        Triple(
+        preferenceFlow
+    ) { query, preferenceFlow ->
+        Pair(
             query,
-            sortedValue,
-            hideValue
+            preferenceFlow
         ) // wrapped all three value in single object because single value only return
     }.flatMapLatest {
-        useCase.run(it.first, it.second, it.third)
+        useCase.run(it.first, it.second.sortedState, it.second.hideCompleted)
     }
 
     val tasks = taskFlow.asLiveData()
