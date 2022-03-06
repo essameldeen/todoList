@@ -7,6 +7,7 @@ import com.demo.todolist.data.Repo.TasksRepoImpl
 import com.demo.todolist.data.db.TaskDatabase
 import com.demo.todolist.domain.Repo.TasksRepo
 import com.demo.todolist.domain.useCase.GetAllTasks
+import com.demo.todolist.domain.useCase.GetTask
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,7 +23,7 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideDataBase(@ApplicationContext context: Context,calLBack :TaskDatabase.Callback) =
+    fun provideDataBase(@ApplicationContext context: Context, calLBack: TaskDatabase.Callback) =
         Room.databaseBuilder(
             context,
             TaskDatabase::class.java,
@@ -51,7 +52,11 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideGetAllUseCase(repo:TasksRepo)= GetAllTasks(repo)
+    fun provideGetAllUseCase(repo: TasksRepo) = GetAllTasks(repo)
+
+    @Singleton
+    @Provides
+    fun provideGetTaskUseCase(repo: TasksRepo) = GetTask(repo)
 }
 
 @Retention(AnnotationRetention.RUNTIME)
