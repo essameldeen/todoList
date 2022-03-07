@@ -5,12 +5,16 @@ import android.view.*
 import android.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.demo.todolist.R
 import com.demo.todolist.data.model.Task
 import com.demo.todolist.databinding.FragmentMainBinding
 import com.demo.todolist.presentation.base.BaseFragment
 import com.demo.todolist.presentation.utils.SortedState
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -41,6 +45,8 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
         }
+
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,26 +60,16 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
                 tasksAdapter.submitList(it)
             }
         }
-    }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu, menu)
-
-        val searchItem = menu.findItem(R.id.action_search)
-        searchView = searchItem.actionView as SearchView
-
-        val pendingQuery = mainViewModel.getSearchValue()
-        if (pendingQuery.isNotEmpty()) {
-            searchItem.expandActionView()
-            searchView.setQuery(pendingQuery, false)
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            mainViewModel.taskEvent.collect { taskEvent ->
+                when (taskEvent) {
+                    is TaskEvent.ShowUndoMessage -> showSnackBar(taskEvent.task)
+                }
+            }
         }
-
-        initListener()
-
-        setupDataInMenu(menu)
-
-
     }
+
 
     private fun initListener() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -86,6 +82,52 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
                 return false
             }
         })
+        ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val task = tasksAdapter.currentList[viewHolder.adapterPosition]
+                mainViewModel.onTaskSwiped(task)
+            }
+
+        }).attachToRecyclerView(_binding.rvTasks)
+
+        _binding.fabAddTask.setOnClickListener {
+            findNavController().navigate(MainFragmentDirections.navigateToCreateTaskFragment())
+        }
+    }
+
+    private fun showSnackBar(task: Task) {
+        Snackbar.make(requireView(), "Task Deleted", Snackbar.LENGTH_LONG)
+            .setAction("UNDO") {
+                mainViewModel.onUndoClicked(task)
+            }.show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
+
+        val searchItem = menu.findItem(R.id.action_search)
+        searchView = searchItem.actionView as SearchView
+
+        val pendingQuery = mainViewModel.getSearchValue()
+        if (pendingQuery?.isNotEmpty() == true) {
+            searchItem.expandActionView()
+            searchView.setQuery(pendingQuery, false)
+        }
+
+        initListener()
+
+        setupDataInMenu(menu)
+
+
     }
 
     private fun setupDataInMenu(menu: Menu) {

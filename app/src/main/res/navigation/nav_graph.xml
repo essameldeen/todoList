@@ -9,5 +9,19 @@
         android:id="@+id/mainFragment"
         android:name="com.demo.todolist.presentation.main.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/navigate_to_createTaskFragment"
+            app:destination="@id/createTaskFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createTaskFragment"
+        android:name="com.demo.todolist.presentation.create.CreateTaskFragment"
+        android:label="CreateTaskFragment" >
+        <argument
+            android:name="task"
+            app:argType="com.demo.todolist.data.model.Task"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>
