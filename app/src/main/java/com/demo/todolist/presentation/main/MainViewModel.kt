@@ -74,7 +74,11 @@ class MainViewModel @Inject constructor(
     }
 
     fun onTaskSelected(task: Task) = viewModelScope.launch {
+        taskEventChannel.send(TaskEvent.NavigateToEditTask(task))
+    }
 
+    fun addNewTaskClicked() = viewModelScope.launch {
+        taskEventChannel.send(TaskEvent.NavigateToCreateTaskFragment)
     }
 
 

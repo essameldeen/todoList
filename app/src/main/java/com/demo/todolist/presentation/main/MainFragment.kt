@@ -65,9 +65,19 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
             mainViewModel.taskEvent.collect { taskEvent ->
                 when (taskEvent) {
                     is TaskEvent.ShowUndoMessage -> showSnackBar(taskEvent.task)
+                    is TaskEvent.NavigateToCreateTaskFragment -> navigateToCreateTask()
+                    is TaskEvent.NavigateToEditTask -> navigateToEditTask(taskEvent.task)
                 }
             }
         }
+    }
+
+    private fun navigateToEditTask(task: Task) {
+        findNavController().navigate(MainFragmentDirections.navigateToCreateTaskFragment(task))
+    }
+
+    private fun navigateToCreateTask() {
+        findNavController().navigate(MainFragmentDirections.navigateToCreateTaskFragment())
     }
 
 
@@ -100,7 +110,7 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         }).attachToRecyclerView(_binding.rvTasks)
 
         _binding.fabAddTask.setOnClickListener {
-            findNavController().navigate(MainFragmentDirections.navigateToCreateTaskFragment())
+            mainViewModel.addNewTaskClicked()
         }
     }
 
@@ -118,7 +128,7 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         searchView = searchItem.actionView as SearchView
 
         val pendingQuery = mainViewModel.getSearchValue()
-        if (pendingQuery?.isNotEmpty() == true) {
+        if (pendingQuery.isNotEmpty()) {
             searchItem.expandActionView()
             searchView.setQuery(pendingQuery, false)
         }
