@@ -63,7 +63,7 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         searchView = searchItem.actionView as SearchView
 
         val pendingQuery = mainViewModel.getSearchValue()
-        if (pendingQuery != null && pendingQuery.isNotEmpty()) {
+        if (pendingQuery.isNotEmpty()) {
             searchItem.expandActionView()
             searchView.setQuery(pendingQuery, false)
         }
@@ -73,9 +73,8 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         setupDataInMenu(menu)
 
 
-
-
     }
+
     private fun initListener() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
@@ -88,14 +87,13 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
             }
         })
     }
+
     private fun setupDataInMenu(menu: Menu) {
         viewLifecycleOwner.lifecycleScope.launch {
             menu.findItem(R.id.action_hide_completed_tasks).isChecked =
                 mainViewModel.preferenceFlow.first().hideCompleted
         }
     }
-
-
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -123,9 +121,12 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
     }
 
     override fun onItemClick(task: Task) {
+        mainViewModel.onTaskSelected(task)
     }
 
     override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
+        mainViewModel.onTaskedCheckedChanged(task, isChecked)
     }
+
 
 }

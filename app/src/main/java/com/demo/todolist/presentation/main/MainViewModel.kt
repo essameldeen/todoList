@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.demo.todolist.data.db.PreferenceManager
 import com.demo.todolist.data.model.Task
 import com.demo.todolist.domain.useCase.GetAllTasks
+import com.demo.todolist.domain.useCase.UpdateTask
 import com.demo.todolist.presentation.utils.SortedState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -13,13 +14,29 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val useCase: GetAllTasks,
+    private val useCaseGetAllTasks: GetAllTasks,
+    private val useCaseUpdateTask: UpdateTask,
     private val preferenceManager: PreferenceManager
 ) : ViewModel() {
 
     private val searchQuery = MutableStateFlow("")
 
-     val preferenceFlow = preferenceManager.preferenceFlow
+    val preferenceFlow = preferenceManager.preferenceFlow
+
+    private val taskFlow = combine(
+        searchQuery,
+        preferenceFlow
+    ) { query, preferenceFlow ->
+        Pair(
+            query,
+            preferenceFlow
+        ) // wrapped all three value in single object because single value only return
+    }.flatMapLatest {
+        useCaseGetAllTasks.run(it.first, it.second.sortedState, it.second.hideCompleted)
+    }
+
+    val tasks = taskFlow.asLiveData()
+
 
     fun setUpSearchValue(searchValue: String) {
         searchQuery.value = searchValue
@@ -35,19 +52,14 @@ class MainViewModel @Inject constructor(
         preferenceManager.updateHideCompleted(hideValue)
     }
 
-    private val taskFlow = combine(
-        searchQuery,
-        preferenceFlow
-    ) { query, preferenceFlow ->
-        Pair(
-            query,
-            preferenceFlow
-        ) // wrapped all three value in single object because single value only return
-    }.flatMapLatest {
-        useCase.run(it.first, it.second.sortedState, it.second.hideCompleted)
+    fun onTaskSelected(task: Task) = viewModelScope.launch {
+
     }
 
-    val tasks = taskFlow.asLiveData()
+
+    fun onTaskedCheckedChanged(task: Task, isChecked: Boolean) = viewModelScope.launch {
+        useCaseUpdateTask.run(task.copy(isCompleted = isChecked))
+    }
 
 
 }

@@ -8,6 +8,7 @@ import com.demo.todolist.data.db.TaskDatabase
 import com.demo.todolist.domain.Repo.TasksRepo
 import com.demo.todolist.domain.useCase.GetAllTasks
 import com.demo.todolist.domain.useCase.GetTask
+import com.demo.todolist.domain.useCase.UpdateTask
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,6 +58,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideGetTaskUseCase(repo: TasksRepo) = GetTask(repo)
+
+    @Singleton
+    @Provides
+    fun provideUpdateTaskUseCase(repo: TasksRepo) = UpdateTask(repo)
 }
 
 @Retention(AnnotationRetention.RUNTIME)
