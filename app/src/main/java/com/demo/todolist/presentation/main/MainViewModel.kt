@@ -95,6 +95,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun onDeleteAllCompletedClick() = viewModelScope.launch {
+        taskEventChannel.send(TaskEvent.NavigateToDeleteDialog)
+    }
+
     private fun showMessage(message: String) = viewModelScope.launch {
         taskEventChannel.send(TaskEvent.ShowMessage(message))
     }

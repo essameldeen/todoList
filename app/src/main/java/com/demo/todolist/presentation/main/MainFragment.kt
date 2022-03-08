@@ -110,11 +110,16 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
                     is TaskEvent.NavigateToCreateTaskFragment -> navigateToCreateTask()
                     is TaskEvent.NavigateToEditTask -> navigateToEditTask(taskEvent.task)
                     is TaskEvent.ShowMessage -> showMessage(taskEvent.message)
+                    is TaskEvent.NavigateToDeleteDialog -> navigateToDeleteAllCompletedTasks()
                 }
             }
         }
 
 
+    }
+
+    private fun navigateToDeleteAllCompletedTasks() {
+        findNavController().navigate(MainFragmentDirections.navigateToDeleteAllTasksDialog())
     }
 
     private fun navigateToEditTask(task: Task) {
@@ -181,7 +186,7 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
                 true
             }
             R.id.action_delete_all_completed_tasks -> {
-                // mainViewModel.onDeleteAllCompletedClick()
+                mainViewModel.onDeleteAllCompletedClick()
                 true
             }
             else -> super.onOptionsItemSelected(item)

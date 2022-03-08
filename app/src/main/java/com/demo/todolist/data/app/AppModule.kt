@@ -68,6 +68,9 @@ object AppModule {
     @Singleton
     @Provides
     fun provideAddNewTaskUseCase(repo: TasksRepo) = AddTask(repo)
+    @Singleton
+    @Provides
+    fun provideDeleteAllTasksCompletedUseCase(repo: TasksRepo) = DeleteAllTasksCompleted(repo)
 
 }
 

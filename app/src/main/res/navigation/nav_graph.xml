@@ -27,4 +27,11 @@
             android:name="title"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/deleteAllTasksDialog"
+        android:name="com.demo.todolist.presentation.deleteDialog.DeleteAllTasksDialog"
+        android:label="DeleteAllTasksDialog" />
+    <action
+        android:id="@+id/navigate_to_deleteAllTasksDialog"
+        app:destination="@id/deleteAllTasksDialog" />
 </navigation>
