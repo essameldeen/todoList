@@ -32,4 +32,9 @@ abstract class BaseFragment : Fragment()
         dismissLoading()
         Toast.makeText(requireActivity(), error, Toast.LENGTH_SHORT).show()
     }
+    fun showMessage(message: String)
+    {
+        dismissLoading()
+        Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show()
+    }
 }

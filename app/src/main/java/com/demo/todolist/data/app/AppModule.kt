@@ -68,6 +68,7 @@ object AppModule {
     @Singleton
     @Provides
     fun provideAddNewTaskUseCase(repo: TasksRepo) = AddTask(repo)
+
 }
 
 @Retention(AnnotationRetention.RUNTIME)

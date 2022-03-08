@@ -3,6 +3,7 @@ package com.demo.todolist.presentation.main
 import android.os.Bundle
 import android.view.*
 import android.widget.SearchView
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -13,6 +14,8 @@ import com.demo.todolist.R
 import com.demo.todolist.data.model.Task
 import com.demo.todolist.databinding.FragmentMainBinding
 import com.demo.todolist.presentation.base.BaseFragment
+import com.demo.todolist.presentation.utils.Constants.CREATE_TASK
+import com.demo.todolist.presentation.utils.Constants.EDIT_TASK
 import com.demo.todolist.presentation.utils.SortedState
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,6 +41,11 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         return _binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initObservers()
+    }
+
     private fun initView() {
         tasksAdapter = TasksAdapter(this@MainFragment)
         _binding.rvTasks.apply {
@@ -48,38 +56,6 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
 
 
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        initObservers()
-    }
-
-    private fun initObservers() {
-        mainViewModel.tasks.observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                tasksAdapter.submitList(it)
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            mainViewModel.taskEvent.collect { taskEvent ->
-                when (taskEvent) {
-                    is TaskEvent.ShowUndoMessage -> showSnackBar(taskEvent.task)
-                    is TaskEvent.NavigateToCreateTaskFragment -> navigateToCreateTask()
-                    is TaskEvent.NavigateToEditTask -> navigateToEditTask(taskEvent.task)
-                }
-            }
-        }
-    }
-
-    private fun navigateToEditTask(task: Task) {
-        findNavController().navigate(MainFragmentDirections.navigateToCreateTaskFragment(task))
-    }
-
-    private fun navigateToCreateTask() {
-        findNavController().navigate(MainFragmentDirections.navigateToCreateTaskFragment())
-    }
-
 
     private fun initListener() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -112,6 +88,46 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         _binding.fabAddTask.setOnClickListener {
             mainViewModel.addNewTaskClicked()
         }
+        setFragmentResultListener("add_edit_request") { _, bundle ->
+            val result = bundle.getInt("add_edit_request")
+            mainViewModel.onCreateResult(result)
+
+        }
+    }
+
+
+    private fun initObservers() {
+        mainViewModel.tasks.observe(viewLifecycleOwner) {
+            if (it.isNotEmpty()) {
+                tasksAdapter.submitList(it)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            mainViewModel.taskEvent.collect { taskEvent ->
+                when (taskEvent) {
+                    is TaskEvent.ShowUndoMessage -> showSnackBar(taskEvent.task)
+                    is TaskEvent.NavigateToCreateTaskFragment -> navigateToCreateTask()
+                    is TaskEvent.NavigateToEditTask -> navigateToEditTask(taskEvent.task)
+                    is TaskEvent.ShowMessage -> showMessage(taskEvent.message)
+                }
+            }
+        }
+
+
+    }
+
+    private fun navigateToEditTask(task: Task) {
+        findNavController().navigate(
+            MainFragmentDirections.navigateToCreateTaskFragment(
+                task,
+                EDIT_TASK
+            )
+        )
+    }
+
+    private fun navigateToCreateTask() {
+        findNavController().navigate(MainFragmentDirections.navigateToCreateTaskFragment(title = CREATE_TASK))
     }
 
     private fun showSnackBar(task: Task) {

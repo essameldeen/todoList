@@ -8,8 +8,8 @@
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.demo.todolist.presentation.main.MainFragment"
-        android:label="fragment_main"
-        tools:layout="@layout/fragment_main" >
+        android:label="Tasks"
+        tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/navigate_to_createTaskFragment"
             app:destination="@id/createTaskFragment" />
@@ -17,11 +17,14 @@
     <fragment
         android:id="@+id/createTaskFragment"
         android:name="com.demo.todolist.presentation.create.CreateTaskFragment"
-        android:label="CreateTaskFragment" >
+        android:label="{title}">
         <argument
             android:name="task"
+            android:defaultValue="@null"
             app:argType="com.demo.todolist.data.model.Task"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
+        <argument
+            android:name="title"
+            app:argType="string" />
     </fragment>
 </navigation>

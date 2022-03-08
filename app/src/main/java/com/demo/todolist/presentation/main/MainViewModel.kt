@@ -8,6 +8,8 @@ import com.demo.todolist.domain.useCase.AddTask
 import com.demo.todolist.domain.useCase.DeleteTask
 import com.demo.todolist.domain.useCase.GetAllTasks
 import com.demo.todolist.domain.useCase.UpdateTask
+import com.demo.todolist.presentation.utils.Constants.RESULT_CREATE
+import com.demo.todolist.presentation.utils.Constants.RESULT_UPDATE
 import com.demo.todolist.presentation.utils.SortedState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -84,6 +86,17 @@ class MainViewModel @Inject constructor(
 
     fun onTaskedCheckedChanged(task: Task, isChecked: Boolean) = viewModelScope.launch {
         useCaseUpdateTask.run(task.copy(isCompleted = isChecked))
+    }
+
+    fun onCreateResult(result: Int) {
+        when (result) {
+            RESULT_CREATE -> showMessage("Task Added Successfully")
+            RESULT_UPDATE -> showMessage("Task Updated Successfully")
+        }
+    }
+
+    private fun showMessage(message: String) = viewModelScope.launch {
+        taskEventChannel.send(TaskEvent.ShowMessage(message))
     }
 
 
