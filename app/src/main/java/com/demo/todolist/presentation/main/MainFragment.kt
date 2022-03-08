@@ -148,6 +148,7 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem.actionView as SearchView
 
+
         val pendingQuery = mainViewModel.getSearchValue()
         if (pendingQuery.isNotEmpty()) {
             searchItem.expandActionView()
@@ -201,5 +202,10 @@ class MainFragment : BaseFragment(), TasksAdapter.OnItemClickListener {
         mainViewModel.onTaskedCheckedChanged(task, isChecked)
     }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+        searchView.setOnQueryTextListener(null)
+    }
 
 }
